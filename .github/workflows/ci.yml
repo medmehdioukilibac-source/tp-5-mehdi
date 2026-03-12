@@ -1,29 +1,36 @@
-name: Tests & Quality
+name: CI Pipeline
+
 on:
   push:
-    branches: [main]
+    branches: [ main ]
   pull_request:
-    branches: [main]
+    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   build:
+
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Installer Python
-        uses: actions/setup-python@v5
+      - name: Setup Python
+        uses: actions/setup-python@v4
         with:
-          python-version: "3.11"
+          python-version: '3.11'
 
-      - name: Installer les dependences
-        run: pip install -r requirements.txt
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
 
-      - name: Installer Flake8
-        run: pip install flake8
-      - name: Lancer le linter
-        run: flake8 app --count --select=E9,F63,F7,F82,F841 --show-source --statistics
-        run: flake8 app --count --max-complexity=10 --max-line-length=127 --statistics
-        run: flake8 tests --count --max-line-length=127 --statistics
-      - name: Lancer les tests
-        run: python -m pytest -v --cov=app
+      - name: Run flake8 lint
+        run: |
+          flake8 app --count --select=E9,F63,F7,F82,F841 --show-source --statistics
+          flake8 app --count --max-complexity=10 --max-line-length=127 --statistics
+          flake8 tests --count --max-line-length=127 --statistics
+
+      - name: Run tests
+        run: |
+          pytest -v --cov=app
